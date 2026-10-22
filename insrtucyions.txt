@@ -202,3 +202,54 @@ eksctl create cluster \
 
 
 ------------------------------------------------------------------------------------------------------------------------------
+
+
+*******************************************************************************************************************
+After configur Jenkins  
+*******************************************************************************************************************
+
+
+
+Install NPM  
+-----------------------------------------------------------------------------------------------------------------
+
+sudo apt install npm -y
+
+
+
+# Associate IAM OIDC provider with the EKS cluster
+-------------------------------------------------------------------------------------------------------------------
+
+eksctl utils associate-iam-oidc-provider \
+    --region ap-south-1 \
+    --cluster aniket-eks \
+    --approve
+
+The above command is crucial when setting up an EKS cluster because it enables IAM roles for service accounts (IRSA)
+Amazon EKS uses OpenID Connect (OIDC) to authenticate Kubernetes service accounts with IAM roles.
+Associating the IAM OIDC provider allows Kubernetes workloads (Pods) running in the cluster to assume IAM roles securely.
+Without this, Pods in EKS clusters would require node-level IAM roles, which grant permissions to all Pods on a node.
+Without this, these services will not be able to access AWS resources securely.
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+Before executing the below command, in the 'ssh-public-key' keep the  '<PEM FILE NAME>' (dont give .pem. Just give the pem file name) which was used to create Jenkins Server
+
+# Create a managed nodegroup using the newer C7i-flex instance family
+# Create a managed EKS nodegroup in Mumbai
+
+eksctl create nodegroup \
+    --cluster=aniket-eks \
+    --region=ap-south-1 \
+    --name=node2 \
+    --node-type=c7i-flex.large \
+    --nodes=3 \
+    --nodes-min=2 \
+    --nodes-max=4 \
+    --node-volume-size=20 \
+    --ssh-access \
+    --ssh-public-key=devops \
+    --managed \
+    --asg-access \
+    --full-ecr-access
